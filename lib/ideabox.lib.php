@@ -53,3 +53,19 @@ function ideaboxAdminPrepareHead()
 
     return $head;
 }
+
+function ideaboxGetUserGroupNom($id)
+{
+    global $db,$langs;
+    if(isset($id) && is_int($id) && $id > 0)
+    {
+        require_once('config.php');
+        dol_include_once('/user/class/usergroup.class.php');
+        $usergroup = new UserGroup($db);
+        $usergroup->fetch($id);
+        return $usergroup->nom;
+    }
+    else {
+        return false;
+    }    
+}

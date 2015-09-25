@@ -11,13 +11,14 @@ if(!defined('INC_FROM_DOLIBARR')) {
 }
 
 
-/* uncomment
 
 
-dol_include_once('/mymodule/class/xxx.class.php');
+dol_include_once('/ideabox/class/ideabox.class.php');
 
 $PDOdb=new TPDOdb;
 
-$o=new TXXX($db);
+$o=new TIdeabox($db);
 $o->init_db_by_vars($PDOdb);
-*/
+
+$o=new TIdeaboxItem($db);
+$o->init_db_by_vars($PDOdb);

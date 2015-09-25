@@ -31,7 +31,7 @@ include_once DOL_DOCUMENT_ROOT .'/core/modules/DolibarrModules.class.php';
 /**
  *  Description and activation class for module ideabox
  */
-class modideabox extends DolibarrModules
+class modIdeabox extends DolibarrModules
 {
 	/**
 	 *   Constructor. Define names, constants, directories, boxes, permissions
@@ -52,11 +52,11 @@ class modideabox extends DolibarrModules
 
 		// Family can be 'crm','financial','hr','projects','products','ecm','technic','other'
 		// It is used to group modules in module setup page
-		$this->family = "other";
+		$this->family = "ATM";
 		// Module label (no space allowed), used if translation string 'ModuleXXXName' not found (where XXX is value of numeric property 'numero' of module)
 		$this->name = preg_replace('/^mod/i','',get_class($this));
 		// Module description, used if translation string 'ModuleXXXDesc' not found (where XXX is value of numeric property 'numero' of module)
-		$this->description = "Description of module ideabox";
+		$this->description = "Module permettant de générer des boites à idées pour les groupes d'utilisateurs";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
 		$this->version = '1.0';
 		// Key used in llx_const table to save module status enabled/disabled (where MYMODULE is value of property name of module in uppercase)
@@ -184,40 +184,46 @@ class modideabox extends DolibarrModules
 		// Main menu entries
 		$this->menu = array();			// List of menus to add
 		$r=0;
-
-		// Add here entries to declare new menus
-		//
-		// Example to declare a new Top Menu entry and its Left menu entry:
-		// $this->menu[$r]=array(	'fk_menu'=>0,			                // Put 0 if this is a top menu
-		//							'type'=>'top',			                // This is a Top menu entry
-		//							'titre'=>'ideabox top menu',
-		//							'mainmenu'=>'ideabox',
-		//							'leftmenu'=>'ideabox',
-		//							'url'=>'/ideabox/pagetop.php',
-		//							'langs'=>'mylangfile@ideabox',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-		//							'position'=>100,
-		//							'enabled'=>'$conf->ideabox->enabled',	// Define condition to show or hide menu entry. Use '$conf->ideabox->enabled' if entry must be visible if module is enabled.
-		//							'perms'=>'1',			                // Use 'perms'=>'$user->rights->ideabox->level1->level2' if you want your menu with a permission rules
-		//							'target'=>'',
-		//							'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
-		// $r++;
-		//
-		// Example to declare a Left Menu entry into an existing Top menu entry:
-		// $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=xxx',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
-		//							'type'=>'left',			                // This is a Left menu entry
-		//							'titre'=>'ideabox left menu',
-		//							'mainmenu'=>'xxx',
-		//							'leftmenu'=>'ideabox',
-		//							'url'=>'/ideabox/pagelevel2.php',
-		//							'langs'=>'mylangfile@ideabox',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-		//							'position'=>100,
-		//							'enabled'=>'$conf->ideabox->enabled',  // Define condition to show or hide menu entry. Use '$conf->ideabox->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-		//							'perms'=>'1',			                // Use 'perms'=>'$user->rights->ideabox->level1->level2' if you want your menu with a permission rules
-		//							'target'=>'',
-		//							'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
-		// $r++;
-
-
+		
+		$this->menu[$r]=array(	'fk_menu'=>0,			                // Put 0 if this is a top menu
+								'type'=>'top',			                // This is a Top menu entry
+								'titre'=>'iBox',
+								'mainmenu'=>'ideabox',
+								'leftmenu'=>'ideabox',
+								'url'=>'/ideabox/ideabox.php',
+								'langs'=>'ideabox@ideabox',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+								'position'=>100,
+								'perms'=>'1',			                // Use 'perms'=>'$user->rights->ideabox->level1->level2' if you want your menu with a permission rules
+								'target'=>'',
+								'user'=>0);				                // 0=Menu for internal users, 1=external users, 2=both
+		$r++;
+        
+        $this->menu[$r]=array(  'fk_menu'=>'fk_mainmenu=ideabox',           // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+                                'type'=>'left',                         // This is a Left menu entry
+                                'titre'=>'ideabox',
+                                'mainmenu'=>'ideabox',
+                                'leftmenu'=>'ideabox_left',
+                                'url'=>'/ideabox/ideabox.php',
+                                'langs'=>'ideabox@ideabox',          // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+                                'position'=>1,
+                                'perms'=>'1',                           // Use 'perms'=>'$user->rights->ideabox->level1->level2' if you want your menu with a permission rules
+                                'target'=>'',
+                                'user'=>0);                             // 0=Menu for internal users, 1=external users, 2=both
+        $r++;
+        
+        $this->menu[$r]=array(  'fk_menu'=>'fk_mainmenu=ideabox,fk_leftmenu=ideabox_left',           // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+                                'type'=>'left',                         // This is a Left menu entry
+                                'titre'=>'Nouvelle',
+                                'mainmenu'=>'ideabox_left',
+                                'leftmenu'=>'ideabox_new',
+                                'url'=>'/ideabox/ideabox.php?action=add',
+                                'langs'=>'ideabox@ideabox',          // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+                                'position'=>2,
+                                'perms'=>'1',                           // Use 'perms'=>'$user->rights->ideabox->level1->level2' if you want your menu with a permission rules
+                                'target'=>'',
+                                'user'=>0);                             // 0=Menu for internal users, 1=external users, 2=both
+        $r++;
+        
 		// Exports
 		$r=1;
 
