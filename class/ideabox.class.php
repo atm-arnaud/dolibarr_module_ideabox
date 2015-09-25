@@ -16,13 +16,19 @@ class TIdeabox extends TObjetStd
         $this->set_table(MAIN_DB_PREFIX.'ideabox');
         $this->add_champs('fk_usergroup',array('type'=>'integer', 'index'=>true));
         $this->add_champs('label',array('type'=>'varchar', 'length' => 50));
+        $this->_init_vars();
+         
+        $this->start();
+        $this->setChild('TIdeaboxItem', 'fk_ideabox');
+        
 	}
     
-    public function getTradUserGroup($dolidb)
+    public function getNameUserGroup(&$dolidb)
     {
         $usergroup = new UserGroup($dolidb);
         $usergroup->fetch($this->fk_usergroup);
-        return $usergroup->nom;
+        
+        return $usergroup->id>0 ? $usergroup->name : 'Pour tous';
     }
 }
 

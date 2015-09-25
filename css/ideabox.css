@@ -5,12 +5,16 @@ body {
 	width:250px;
 	height:190px;
 	position:fixed;
-	bottom:0;
-	right:0;
+	bottom:-175px;
+	right:5px;
 	background:#dedede;
 	padding:5px;
 	border:1px solid #ccc;
 }
+#ideabox_widget:hover {
+	bottom: 0;
+}
+
 #ideabox_widget .titre {
 	margin-bottom:10px;
 }

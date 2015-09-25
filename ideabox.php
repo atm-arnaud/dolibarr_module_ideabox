@@ -52,17 +52,6 @@
                         
             break;
         
-            
-        case 'saveItem':
-            $ideaItem=new TIdeaboxItem;
-            $ideaItem->load($PDOdb, $id);
-            $ideaItem->set_values($_REQUEST);
-            $ideaItem->save($PDOdb);
-        
-            setEventMessage($langs->trans('IdeaboxUpdateSaveControlEvent'));
-            return $ideaItem;
-            break;
-        
         case 'delete':
             $idea=new TIdeabox;
             $idea->load($PDOdb, $id);
@@ -106,15 +95,6 @@
 function _fiche(&$PDOdb, &$idea, $mode='view', $editValue=false) {
     global $db,$langs,$user;
 
-    $sql = 'SELECT rowid, nom 
-            FROM '.MAIN_DB_PREFIX.'usergroup';
-    $usergroup = array();
-    $PDOdb->Execute($sql);
-    while ($PDOdb->Get_line()) 
-    {
-        $usergroup[$PDOdb->Get_field('rowid')] = $PDOdb->Get_field('nom');
-    }
-    
     llxHeader('',$langs->trans('IdeaboxAddItem'),'','');
     
     /******/
@@ -129,6 +109,10 @@ function _fiche(&$PDOdb, &$idea, $mode='view', $editValue=false) {
     
     $TIdeaboxItem = _fiche_ligne_ideabox_item($PDOdb, $idea->getId(), $mode);
     
+    $formDoli = new Form($db);
+
+   
+    
     print $TBS->render('tpl/ideabox.tpl.php'
         ,array(
             'TIdeaboxItem'=>$TIdeaboxItem
@@ -136,9 +120,9 @@ function _fiche(&$PDOdb, &$idea, $mode='view', $editValue=false) {
         ,array(
             'TIdeabox'=>array(
                 'id'=>(int) $idea->getId()
-                ,'label'=> $form->texte('', 'label', $idea->label, 10,150,'','','à saisir')
-                ,'usergroup'=> $form->combo('','fk_usergroup',$usergroup,$idea->fk_usergroup)
-                ,'usergroup_trad'=> $idea->getId() > 0?$idea->getTradUsergroup($db):''
+                ,'label'=> $form->texte('', 'label', $idea->label, 80,150,'','','à saisir')
+                ,'usergroup'=> ($mode == 'view' ? $idea->getNameUserGroup($db)  : $formDoli->select_dolgroups($idea->fk_usergroup,'fk_usergroup',1))
+                
             )
             ,'view'=>array(
                 'type'=>'showficheideabox'

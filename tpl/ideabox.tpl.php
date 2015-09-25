@@ -7,21 +7,17 @@
                 [onshow;block=begin;when [TIdeabox.id] != 0]
             <tr>
                 <td colspan="1">&nbsp;&nbsp;numéro</td>
-                <td colspan="3" align="center">&nbsp;&nbsp;[TIdeabox.id;strconv=no]</td>
+                <td colspan="3" align="left">&nbsp;&nbsp;[TIdeabox.id;strconv=no]</td>
             </tr>
                 [onshow;block=end]
             <tr>
                 <td colspan="1" width="20%">&nbsp;&nbsp;Label</td>
-                <td colspan="3" align="center">&nbsp;&nbsp;[TIdeabox.label;strconv=no]</td>
+                <td colspan="3" align="left">&nbsp;&nbsp;[TIdeabox.label;strconv=no]</td>
             </tr>
             <tr>
                 <td colspan="1">&nbsp;&nbsp;Groupe d'utilisateurs</td>
-                [onshow;block=begin;when [view.mode]=='view']
-                <td colspan="3" align="center">&nbsp;&nbsp;[TIdeabox.usergroup_trad;strconv=no]</td>
-                [onshow;block=end]
-                [onshow;block=begin;when [view.mode]=='edit']
-                <td colspan="3" align="center">&nbsp;&nbsp;[TIdeabox.usergroup;strconv=no]</td>
-                [onshow;block=end]
+                <td colspan="3" align="left">&nbsp;&nbsp;[TIdeabox.usergroup;strconv=no]</td>
+                
             </tr>
             [onshow;block=begin;when [TIdeabox.id] != 0]
             <tr>
