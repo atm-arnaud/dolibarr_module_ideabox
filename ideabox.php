@@ -8,98 +8,114 @@
     dol_include_once('/core/class/html.form.class.php');
     dol_include_once("/core/class/html.formother.class.php");
     
-    
-    $action=__get('action','view');
+    $action=__get('action','liste');
     $id = __get('id', 0);
-    $ATMdb=new TPDOdb;
+    $PDOdb=new TPDOdb;
     
 
     switch($action) {
-        case 'view':        
+        case 'view':
             $idea=new TIdeabox;
-            $idea->load($ATMdb, $id);
+            $idea->load($PDOdb, $id);
             
-            _fiche($ATMdb, $idea, 'view');
+            _fiche($PDOdb, $idea, 'view');
             
             break;
         
         case 'new':
+            if($user->rights->ideabox->create < 1) accessforbidden();
             $idea=new TIdeabox;
             
-            _fiche($ATMdb, $idea, 'edit');
+            _fiche($PDOdb, $idea, 'edit');
             
             break;
     
         case 'edit':
+            if($user->rights->ideabox->create < 1) accessforbidden();
             $idea=new TIdeabox;
-            $idea->load($ATMdb, $id);
+            $idea->load($PDOdb, $id);
             
-            _fiche($ATMdb, $idea, 'edit');
+            _fiche($PDOdb, $idea, 'edit');
             
             break;
             
         case 'save':
+            if($user->rights->ideabox->create < 1) accessforbidden();
             $idea=new TIdeabox;
-            $idea->load($ATMdb, $id);
+            $idea->load($PDOdb, $id);
             $idea->set_values($_REQUEST);
-            $idea->save($ATMdb);
+            $idea->save($PDOdb);
         
-            setEventMessage($langs->trans('IdeaboxSaveControlEvent'));
+            setEventMessage($langs->trans('IdeaboxUpdateSaveControlEvent'));
         
-            _fiche($ATMdb, $idea, 'view');
+            header('Location: '.dol_buildpath('/ideabox/ideabox.php',2).'?id='.$idea->getId().'&action=view');
+                        
+            break;
+        
             
+        case 'saveItem':
+            $ideaItem=new TIdeaboxItem;
+            $ideaItem->load($PDOdb, $id);
+            $ideaItem->set_values($_REQUEST);
+            $ideaItem->save($PDOdb);
+        
+            setEventMessage($langs->trans('IdeaboxUpdateSaveControlEvent'));
+            return $ideaItem;
             break;
         
         case 'delete':
             $idea=new TIdeabox;
-            $idea->load($ATMdb, $id);
-            $idea->delete($ATMdb);
+            $idea->load($PDOdb, $id);
+            if($user->rights->ideabox->create < 1 && $idea->fk_user != $user->id) accessforbidden();
+            $idea->delete($PDOdb);
             
-            $_SESSION['AssetMsg'] = 'AssetDeleteControlEvent';
-            header('Location: '.DOL_MAIN_URL_ROOT.'/custom/asset/list_control.php');
+            setEventMessage($langs->trans('IdeaboxDeleteControlEvent'));
+            
+            header('Location: '.dol_buildpath('/ideabox/ideabox.php',2));
             
             break;
             
-        case 'deleteValue':
+        case 'deleteItem':
+            if($user->rights->ideabox->create < 1) accessforbidden();
+            $ideaItem=new TIdeaboxItem;
+            $ideaItem->load($PDOdb, $id);
+            
             $idea=new TIdeabox;
-            $idea->load($ATMdb, $id);
+            $idea->load($PDOdb, $ideaItem->fk_ideabox);
             
-            if ($idea->removeChild('TIdeaboxItem', __get('id_value',0,'integer'))) 
-            {
-                $idea->save($ATMdb);
-                setEventMessage($langs->trans('AssetMsgDeleteControlValue'));
-            }
-            else setEventMessage($langs->trans('AssetErrDeleteControlValue'));
+            $ideaItem->delete($PDOdb);
             
-            _fiche($ATMdb, $idea, 'view');
+            setEventMessage($langs->trans('IdeaboxItemDeleteControlEvent'));
+            
+            header('Location: '.dol_buildpath('/ideabox/ideabox.php',2).'?id='.$idea->getId().'&action=view');
             
             break;
 
             
-        default:
+        case 'liste':
+        default :
             $idea=new TIdeabox;
-            $idea->load($ATMdb, $id);
+            $idea->load($PDOdb, $id);
             
-            _liste($ATMdb, $idea, 'view');
+            _liste($PDOdb, $idea, 'view');
             
             break;
     }
     
 
-function _fiche(&$ATMdb, &$idea, $mode='view', $editValue=false) {
-    global $db,$langs;
+function _fiche(&$PDOdb, &$idea, $mode='view', $editValue=false) {
+    global $db,$langs,$user;
 
     $sql = 'SELECT rowid, nom 
             FROM '.MAIN_DB_PREFIX.'usergroup';
     $usergroup = array();
-    $ATMdb->Execute($sql);
-    while ($ATMdb->Get_line())
+    $PDOdb->Execute($sql);
+    while ($PDOdb->Get_line()) 
     {
-        $usergroup[] = array(
-            'rowid' => $ATMdb->Get_field('rowid')
-            ,'nom' => $ATMdb->Get_field('nom')
-        );
+        $usergroup[$PDOdb->Get_field('rowid')] = $PDOdb->Get_field('nom');
     }
+    
+    llxHeader('',$langs->trans('IdeaboxAddItem'),'','');
     
     /******/
     $TBS=new TTemplateTBS();
@@ -107,45 +123,50 @@ function _fiche(&$ATMdb, &$idea, $mode='view', $editValue=false) {
     $TBS->TBS->noerr=true;
 
     $form=new TFormCore($_SERVER['PHP_SELF'], 'form', 'POST');
-    $form->Set_typeaff('view');
+    $form->Set_typeaff($mode);
+    echo $form->hidden('id', $idea->getId());
+    echo $form->hidden('action', 'save');
     
+    $TIdeaboxItem = _fiche_ligne_ideabox_item($PDOdb, $idea->getId(), $mode);
     
-    
-    $TIdeaboxItem = _fiche_ligne_ideabox_item($PDOdb, $idea->getId());
-    
-    print $TBS->render('tpl/fiche_of_ideabox.tpl.php'
+    print $TBS->render('tpl/ideabox.tpl.php'
         ,array(
             'TIdeaboxItem'=>$TIdeaboxItem
         )
         ,array(
-            'ideabox'=>array(
+            'TIdeabox'=>array(
                 'id'=>(int) $idea->getId()
-                ,'nom'=> $idea->getLabel()
+                ,'label'=> $form->texte('', 'label', $idea->label, 10,150,'','','à saisir')
+                ,'usergroup'=> $form->combo('','fk_usergroup',$usergroup,$idea->fk_usergroup)
+                ,'usergroup_trad'=> $idea->getId() > 0?$idea->getTradUsergroup($db):''
             )
             ,'view'=>array(
                 'type'=>'showficheideabox'
+                ,'mode'=>$mode
+                ,'user_right'=>$user->rights->ideabox->create
                 ,'url'=>dol_buildpath('/ideabox/ideabox.php',2)
             )
         )
     );
     
     $form->end();
-    /*******/
+    
+    llxFooter();
 }
 
 
-function _liste(&$ATMdb, &$idea, $mode='view', $editValue=false) {
+function _liste(&$PDOdb, &$idea, $mode='view', $editValue=false) {
     global $db,$langs;
 
     $sql = 'SELECT rowid, nom 
             FROM '.MAIN_DB_PREFIX.'usergroup';
     
-    $ATMdb->Execute($sql);
-    while ($ATMdb->Get_line())
+    $PDOdb->Execute($sql);
+    while ($PDOdb->Get_line())
     {
         $usergroup[] = array(
-            'rowid' => $ATMdb->Get_field('rowid')
-            ,'nom' => $ATMdb->Get_field('nom')
+            'rowid' => $PDOdb->Get_field('rowid')
+            ,'nom' => $PDOdb->Get_field('nom')
         );
     }
     
@@ -154,18 +175,19 @@ function _liste(&$ATMdb, &$idea, $mode='view', $editValue=false) {
     $ideabox = new TIdeabox;
     $r = new TSSRenderControler($ideabox);
     
-    $sql = 'SELECT rowid, label, fk_usergroup';
-    $sql .= ' FROM '.MAIN_DB_PREFIX.'ideabox ib';
-    
+    $sql = 'SELECT ib.rowid, ib.label, count(ii.rowid) as ideaItem, ib.fk_usergroup';
+    $sql.= ' FROM '.MAIN_DB_PREFIX.'ideabox ib';
+    $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'ideaboxitem ii ON (ii.fk_ideabox = ib.rowid)';
+    $sql.= ' GROUP BY ib.rowid';
     $orderBy['ib.rowid']='DESC';
     $THide = array();
     
-    $r->liste($ATMdb, $sql, array(
+    $r->liste($PDOdb, $sql, array(
         'limit'=>array()
         ,'orderBy'=>$orderBy
         ,'subQuery'=>array()
         ,'link'=>array(
-            'label'=>'<a href="ideabox.php?action=viewid=@rowid@">'.img_picto('','object_product.png','',0).' @val@</a>'
+            'label'=>'<a href="ideabox.php?id=@rowid@&amp;action=view">'.img_picto('','object_product.png','',0).' @val@</a>'
         )
         ,'translate'=>array()
         ,'hide'=>$THide
@@ -176,12 +198,13 @@ function _liste(&$ATMdb, &$idea, $mode='view', $editValue=false) {
             ,'image'=>img_picto('','title.png', '', 0)
             ,'picto_precedent'=>img_picto('','back.png', '', 0)
             ,'picto_suivant'=>img_picto('','next.png', '', 0)
-            ,'messa geNothing'=>"Il n'y a aucun ".$langs->trans('OFAsset')." à afficher"
+            ,'messa geNothing'=>"Il n'y a aucun ".$langs->trans('Ideabox')." à afficher"
             ,'picto_search'=>img_picto('','search.png', '', 0)
         )
         ,'title'=>array(
             'rowid'=>'ID'
             ,'label'=>'Nom'
+            ,'ideaItem' => 'Idée(s)'
             ,'fk_usergroup'=>'Groupe utilisateur'
         )
         ,'eval'=>array(
@@ -194,27 +217,29 @@ function _liste(&$ATMdb, &$idea, $mode='view', $editValue=false) {
 }
 
 
-function _fiche_ligne_ideabox_item(&$PDOdb, $fk_ideabox)
+function _fiche_ligne_ideabox_item(&$PDOdb, $fk_ideabox, $mode = 'view')
 {
+    global $user;
     $res = array();
     
-    if (!isset($fk_ideabox) || empty($fk_ideabox) || !is_int($fk_ideabox)) return $res;
+    if (!isset($fk_ideabox) || empty($fk_ideabox)) return $res;
     
     $sql = 'SELECT rowid as id, label, description, fk_user';
     $sql.= ' FROM '.MAIN_DB_PREFIX.'ideaboxitem';
     $sql.= ' WHERE fk_ideabox = '.$fk_ideabox;
     
-    
     $PDOdb->Execute($sql);
     while ($PDOdb->Get_line())
     {
+        $delete = $PDOdb->Get_field('fk_user')==$user->id?"<a style=\"cursor:pointer;\" onclick=\"if (window.confirm('Voulez vous supprimer l\'idée ?')){document.location.href='?id=".$PDOdb->Get_field('id')."&action=deleteItem'};\">".img_picto('','delete.png', '', 0)."</a>":'';
         $res[] = array(
             'id' => $PDOdb->Get_field('id')
             ,'label' => $PDOdb->Get_field('label')
             ,'description' => $PDOdb->Get_field('description')
-            ,'delete' => '<input type="checkbox" value="'.$PDOdb->Get_field('id').'" name="TIdeaboxDelete[]" />'
+            ,'fk_user' => $PDOdb->Get_field('fk_user')
+            ,'fk_user_trad' => ideaboxGetUserNom($PDOdb->Get_field('fk_user'))
+            ,'delete' => $delete
         );
     }
-    
     return $res;
 }

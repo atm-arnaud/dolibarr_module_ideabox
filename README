@@ -16,4 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
+Ce module permet la création de boîtes à idées. 
+Vous pouvez affecter une boîte à un groupe d'utilisateur spécifique. 
+Une fois fait, les utilisateurs pourront remplir la boîte via une bloc flotant en bas à droite de leur page internet.

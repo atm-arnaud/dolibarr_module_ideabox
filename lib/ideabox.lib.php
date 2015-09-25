@@ -23,6 +23,9 @@
  *				Put some comments here
  */
 
+dol_include_once('/user/class/user.class.php');
+dol_include_once('/user/class/usergroup.class.php');
+
 function ideaboxAdminPrepareHead()
 {
     global $langs, $conf;
@@ -57,13 +60,38 @@ function ideaboxAdminPrepareHead()
 function ideaboxGetUserGroupNom($id)
 {
     global $db,$langs;
-    if(isset($id) && is_int($id) && $id > 0)
+    if(isset($id) && $id > 0)
     {
-        require_once('config.php');
-        dol_include_once('/user/class/usergroup.class.php');
         $usergroup = new UserGroup($db);
         $usergroup->fetch($id);
         return $usergroup->nom;
+    }
+    else {
+        return false;
+    }    
+}
+
+function ideaboxGetUserNom($id)
+{
+    global $db,$langs;
+    if(isset($id) && $id > 0)
+    {
+        $user = new User($db);
+        $user->fetch($id);
+        return $user->login;
+    }
+    else {
+        return false;
+    }    
+}
+
+function checkIdeabox($id = 0)
+{
+    global $db,$langs;
+    if(isset($id) && $id > 0)
+    {
+        $usergroup = new UserGroup($db);
+        return $usergroup->listGroupsForUser($id);
     }
     else {
         return false;

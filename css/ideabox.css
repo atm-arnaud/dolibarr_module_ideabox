@@ -1,0 +1,21 @@
+body {
+	padding-bottom:190px;
+}
+#ideabox_widget {
+	width:250px;
+	height:190px;
+	position:fixed;
+	bottom:0;
+	right:0;
+	background:#dedede;
+	padding:5px;
+	border:1px solid #ccc;
+}
+#ideabox_widget .titre {
+	margin-bottom:10px;
+}
+#ideabox_widget input[type="text"], #ideabox_widget textarea {
+	width:100%;
+	box-sizing: border-box;
+	resize:none;
+}

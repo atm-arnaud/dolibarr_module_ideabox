@@ -87,7 +87,10 @@ class modIdeabox extends DolibarrModules
 		//							'dir' => array('output' => 'othermodulename'),      // To force the default directories names
 		//							'workflow' => array('WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2'=>array('enabled'=>'! empty($conf->module1->enabled) && ! empty($conf->module2->enabled)', 'picto'=>'yourpicto@ideabox')) // Set here all workflow context managed by module
 		//                        );
-		$this->module_parts = array();
+		$this->module_parts = array(
+            'js' => array('/ideabox/js/ideabox.js.php')
+            ,'css' => array('/ideabox/css/ideabox.css')
+        );
 
 		// Data directories to create when module is enabled.
 		// Example: this->dirs = array("/ideabox/temp");
@@ -179,6 +182,17 @@ class modIdeabox extends DolibarrModules
 		// $this->rights[$r][4] = 'level1';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		// $this->rights[$r][5] = 'level2';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		// $r++;
+		
+        $this->rights[$r][0] = $this->numero + $r;   // Permission id (must not be already used)
+        $this->rights[$r][1] = 'lire et ajouter des idées';    // Permission label
+        $this->rights[$r][3] = 1;                    // Permission by default for new user (0/1)
+        $this->rights[$r][4] = 'read';             // In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+        $r++;
+        $this->rights[$r][0] = $this->numero + $r;   // Permission id (must not be already used)
+        $this->rights[$r][1] = 'créer des boites et gérer les idées';    // Permission label
+        $this->rights[$r][3] = 0;                    // Permission by default for new user (0/1)
+        $this->rights[$r][4] = 'create';             // In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+        $r++;
 
 
 		// Main menu entries
@@ -193,7 +207,7 @@ class modIdeabox extends DolibarrModules
 								'url'=>'/ideabox/ideabox.php',
 								'langs'=>'ideabox@ideabox',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 								'position'=>100,
-								'perms'=>'1',			                // Use 'perms'=>'$user->rights->ideabox->level1->level2' if you want your menu with a permission rules
+								'perms'=> '$user->rights->ideabox->read',			                // Use 'perms'=>'$user->rights->ideabox->level1->level2' if you want your menu with a permission rules
 								'target'=>'',
 								'user'=>0);				                // 0=Menu for internal users, 1=external users, 2=both
 		$r++;
@@ -216,10 +230,10 @@ class modIdeabox extends DolibarrModules
                                 'titre'=>'Nouvelle',
                                 'mainmenu'=>'ideabox_left',
                                 'leftmenu'=>'ideabox_new',
-                                'url'=>'/ideabox/ideabox.php?action=add',
+                                'url'=>'/ideabox/ideabox.php?action=new',
                                 'langs'=>'ideabox@ideabox',          // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
                                 'position'=>2,
-                                'perms'=>'1',                           // Use 'perms'=>'$user->rights->ideabox->level1->level2' if you want your menu with a permission rules
+                                'perms'=>'$user->rights->ideabox->create',                           // Use 'perms'=>'$user->rights->ideabox->level1->level2' if you want your menu with a permission rules
                                 'target'=>'',
                                 'user'=>0);                             // 0=Menu for internal users, 1=external users, 2=both
         $r++;

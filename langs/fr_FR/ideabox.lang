@@ -6,3 +6,7 @@ ATMAbout = Ce module a été développé par <a href="http://www.atm-consulting.
 ideaboxSetup = Configuration du module ideabox
 ideaboxAbout = A propos du module ideabox
 ListOfIdeabox = Liste des boîtes à idées
+IdeaboxSaveControlEvent = Boîte ajoutée avec succès
+IdeaboxUpdateSaveControlEvent = Boîte modifiée avec succès
+IdeaboxDeleteControlEvent = Boîte supprimée avec succès
+IdeaboxItemDeleteControlEvent = Idée supprimée avec succès

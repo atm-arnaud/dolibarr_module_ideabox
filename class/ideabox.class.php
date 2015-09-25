@@ -18,9 +18,11 @@ class TIdeabox extends TObjetStd
         $this->add_champs('label',array('type'=>'varchar', 'length' => 50));
 	}
     
-    public function getLabel()
+    public function getTradUserGroup($dolidb)
     {
-        return $this->label;
+        $usergroup = new UserGroup($dolidb);
+        $usergroup->fetch($this->fk_usergroup);
+        return $usergroup->nom;
     }
 }
 
