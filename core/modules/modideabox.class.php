@@ -97,7 +97,7 @@ class modIdeabox extends DolibarrModules
 		$this->dirs = array();
 
 		// Config pages. Put here list of php page, stored into ideabox/admin directory, to use to setup module.
-		$this->config_page_url = array("ideabox_setup.php@ideabox");
+		// $this->config_page_url = array("ideabox_setup.php@ideabox");
 
 		// Dependencies
 		$this->hidden = false;			// A condition to hide module
@@ -201,7 +201,7 @@ class modIdeabox extends DolibarrModules
 		
 		$this->menu[$r]=array(	'fk_menu'=>0,			                // Put 0 if this is a top menu
 								'type'=>'top',			                // This is a Top menu entry
-								'titre'=>'iBox',
+								'titre'=>'Idea Box',
 								'mainmenu'=>'ideabox',
 								'leftmenu'=>'ideabox',
 								'url'=>'/ideabox/ideabox.php',

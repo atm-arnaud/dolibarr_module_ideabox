@@ -28,13 +28,13 @@
             </tr>
             <tr style="background-color:#eee;">
                 <th align="left">&nbsp;&nbsp;Label</th>
-                <th align="center" width="60%">Description</th>
+                <th align="left" width="60%">&nbsp;&nbsp;Description</th>
                 <th align="center" width="15%">Utilisateur</th>
                 <th width="5%" class="draftedit">Supprimer&nbsp;&nbsp;</th>
             </tr>
             <tr style="background-color:#fff;">
                 <td align="left">&nbsp;&nbsp;[TIdeaboxItem.label;strconv=no;block=tr]</td>
-                <td align="center">[TIdeaboxItem.description;strconv=no;block=tr]</td>
+                <td align="left">&nbsp;&nbsp;[TIdeaboxItem.description;strconv=no;block=tr]</td>
                 <td align="center">[TIdeaboxItem.fk_user_trad;strconv=no;block=tr]</td>
                 <td align='center' class="draftedit">[TIdeaboxItem.delete;strconv=no;block=tr]</td>
             </tr>

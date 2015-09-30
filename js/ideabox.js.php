@@ -4,25 +4,16 @@
     dol_include_once('/ideabox/lib/ideabox.lib.php');
 
     $langs->load('ideabox@ideabox');
-    $group = checkIdeabox($user->id);
     $PDOdb=new TPDOdb;
-    $sql = 'SELECT rowid, label, fk_usergroup 
-            FROM '.MAIN_DB_PREFIX.'ideabox';
-    $ideabox = array();
+    $sql = 'SELECT DISTINCT(ib.rowid), ib.label, ib.fk_usergroup 
+            FROM (('.MAIN_DB_PREFIX.'usergroup ub RIGHT JOIN '.MAIN_DB_PREFIX.'ideabox ib on ib.fk_usergroup = ub.rowid)
+            INNER JOIN '.MAIN_DB_PREFIX.'usergroup_user ubu on ub.rowid = ubu.fk_usergroup)
+            WHERE ubu.fk_user = '.$user->id.'
+            UNION
+            SELECT ib.rowid, ib.label, ib.fk_usergroup 
+            FROM '.MAIN_DB_PREFIX.'ideabox ib
+            WHERE fk_usergroup = -1';
     $PDOdb->Execute($sql);
-    while ($PDOdb->Get_line())
-    {
-        $ideabox[] = array(
-            'id' => $PDOdb->Get_field('rowid')
-            ,'label' => $PDOdb->Get_field('label')
-            ,'fk_usergroup' => $PDOdb->Get_field('fk_usergroup')
-        );
-    }
-    $group_format = array();
-    foreach($group as $item)
-    {
-        $group_format[$item->id] = $item->name;
-    }
 ?>
 $('document').ready(function(){
         
@@ -41,20 +32,10 @@ $('document').ready(function(){
     
     var ideabox = new Array();
     
-    <?php 
-        foreach($ideabox as $item)
+    <?php
+        while ($PDOdb->Get_line())
         {
-            $valid = false;
-            foreach($group as $item2)
-            {
-                if($item2->id == $item['fk_usergroup'])
-                {
-                    $valid=true;
-                    break;
-                }
-            }
-            if($valid)
-                echo "ideabox.push({id : '".$item['id']."', name : '".addslashes($item['label'])."'});";
+            echo "ideabox.push({id : '".$PDOdb->Get_field('rowid')."', name : '".addslashes($PDOdb->Get_field('label'))."'});";
         }
     ?>
     if(ideabox.length > 0)
@@ -87,10 +68,11 @@ $('document').ready(function(){
                 fk_user: <?php echo $user->id; ?>
             }
         }).done(function(){
-                 $.jnotify("Bo&icirc;te modifi&eacute;e avec succ&egrave;s",
-                            "3000",
-                            false,
-                            { remove: function (){} } );
+                $.jnotify("Bo&icirc;te modifi&eacute;e avec succ&egrave;s",
+                    "3000",
+                    false,
+                    { remove: function (){} } 
+                );
               
           
         });

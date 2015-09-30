@@ -53,9 +53,9 @@
             break;
         
         case 'delete':
+            if($user->rights->ideabox->create < 1) accessforbidden();
             $idea=new TIdeabox;
             $idea->load($PDOdb, $id);
-            if($user->rights->ideabox->create < 1 && $idea->fk_user != $user->id) accessforbidden();
             $idea->delete($PDOdb);
             
             setEventMessage($langs->trans('IdeaboxDeleteControlEvent'));
@@ -65,9 +65,9 @@
             break;
             
         case 'deleteItem':
-            if($user->rights->ideabox->create < 1) accessforbidden();
             $ideaItem=new TIdeaboxItem;
             $ideaItem->load($PDOdb, $id);
+            if($user->rights->ideabox->create < 1 && $ideaItem->fk_user != $user->id) accessforbidden();
             
             $idea=new TIdeabox;
             $idea->load($PDOdb, $ideaItem->fk_ideabox);
@@ -163,8 +163,8 @@ function _liste(&$PDOdb, &$idea, $mode='view', $editValue=false) {
     $sql.= ' FROM '.MAIN_DB_PREFIX.'ideabox ib';
     $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'ideaboxitem ii ON (ii.fk_ideabox = ib.rowid)';
     $sql.= ' GROUP BY ib.rowid';
-    $orderBy['ib.rowid']='DESC';
-    $THide = array();
+    $orderBy['ib.label']='ASC';
+    $THide = array('rowid');
     
     $r->liste($PDOdb, $sql, array(
         'limit'=>array()
@@ -186,8 +186,7 @@ function _liste(&$PDOdb, &$idea, $mode='view', $editValue=false) {
             ,'picto_search'=>img_picto('','search.png', '', 0)
         )
         ,'title'=>array(
-            'rowid'=>'ID'
-            ,'label'=>'Nom'
+            'label'=>'Nom'
             ,'ideaItem' => 'Idée(s)'
             ,'fk_usergroup'=>'Groupe utilisateur'
         )
@@ -215,7 +214,7 @@ function _fiche_ligne_ideabox_item(&$PDOdb, $fk_ideabox, $mode = 'view')
     $PDOdb->Execute($sql);
     while ($PDOdb->Get_line())
     {
-        $delete = $PDOdb->Get_field('fk_user')==$user->id?"<a style=\"cursor:pointer;\" onclick=\"if (window.confirm('Voulez vous supprimer l\'idée ?')){document.location.href='?id=".$PDOdb->Get_field('id')."&action=deleteItem'};\">".img_picto('','delete.png', '', 0)."</a>":'';
+        $delete = ($PDOdb->Get_field('fk_user')==$user->id || $user->rights->ideabox->create == 1)?"<a style=\"cursor:pointer;\" onclick=\"if (window.confirm('Voulez vous supprimer l\'idée ?')){document.location.href='?id=".$PDOdb->Get_field('id')."&action=deleteItem'};\">".img_picto('','delete.png', '', 0)."</a>":'';
         $res[] = array(
             'id' => $PDOdb->Get_field('id')
             ,'label' => $PDOdb->Get_field('label')
